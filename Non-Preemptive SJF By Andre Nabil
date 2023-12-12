@@ -1,0 +1,120 @@
+/*
+    * Name: Andre Nabil Lamey
+    * ID:   21-00502
+    * Team: Fire Walf
+ */
+package nonpreemptivesjf;
+
+import java.util.*;
+
+public class NonPreemptiveSJF {
+
+    public static void main(String[] args) {
+        // Initializing scanner for user input
+        Scanner sc = new Scanner(System.in);
+
+        // Prompting user for the number of tasks
+        System.out.println("Number of Tasks is: ");
+
+        // Reading the total number of tasks
+        int TaskNum = sc.nextInt();
+
+        // Arrays to store task information
+        int TaskID[] = new int[TaskNum];
+        int ArriveTime[] = new int[TaskNum];
+        int BurstTime[] = new int[TaskNum];
+
+        int CompletedTask[] = new int[TaskNum];
+
+        // Variables to track overall time and averages
+        int StartTime[] = new int[TaskNum];
+        int FinishTime[] = new int[TaskNum];
+        int TurnaroundTime[] = new int[TaskNum];
+        int WaitTime[] = new int[TaskNum];
+        int ResponseTime[] = new int[TaskNum];
+        int CurrentTime = 0, TotalTime = 0;
+       float AvgResponse = 0, AvgTurnaround = 0;
+        
+// Adding tasks arrive and burst time
+        for (int i = 0; i < TaskNum; i++) {
+
+            // Prompting user for arrival time of each task
+            System.out.println("Enter Task " + (i + 1) + " Arrival Time: ");
+            ArriveTime[i] = sc.nextInt();
+
+            // Prompting user for burst time of each task
+            System.out.println("Enter Task " + (i + 1) + " Burst Time: ");
+            BurstTime[i] = sc.nextInt();
+
+            // Assigning task IDs and marking tasks as incomplete
+            TaskID[i] = i + 1;
+            CompletedTask[i] = 0;
+        }
+
+        // Scheduling loop
+        while (true) {
+            int x = TaskNum, minBurst = Integer.MAX_VALUE;
+
+            // Break if all tasks are completed
+            if (TotalTime == TaskNum) {
+                break;
+            }
+
+            // Finding the next task to execute
+            for (int i = 0; i < TaskNum; i++) {
+                if ((ArriveTime[i] <= CurrentTime) && (CompletedTask[i] == 0)
+                        && (BurstTime[i] < minBurst)) {
+                    x = i;
+                    minBurst = BurstTime[i];
+                }
+            }
+
+            // If no task is ready, increment start time
+            if (x == TaskNum) {
+                CurrentTime++;
+            } else {
+
+                // Update finish time, start time, and calculate turnaround, waiting, and response times
+                FinishTime[x] = CurrentTime + BurstTime[x];
+                TurnaroundTime[x] = FinishTime[x] - ArriveTime[x];
+                WaitTime[x] = TurnaroundTime[x] - BurstTime[x];
+                ResponseTime[x] = CurrentTime - ArriveTime[x];
+
+                StartTime[x] = CurrentTime;
+                CurrentTime += BurstTime[x];
+
+                AvgResponse += ResponseTime[x];
+                AvgTurnaround += TurnaroundTime[x];
+
+                TaskID[TotalTime] = x + 1;
+                CompletedTask[x] = 1;
+                TotalTime++;
+            }
+        }
+        // Displaying task information
+        System.out.println("\nTaskID  \t Arrival  \t Burst  \t Start  \t Finish  \t Turnaround  \t Waiting  \t Response");
+        for (int i = 0; i < TaskNum; i++) {
+
+            System.out.printf("%-8d\t%-10d\t%-8d\t%-8d\t%-10d\t%-13d\t%-9d\t%-8d\n",
+                    i + 1, ArriveTime[i], BurstTime[i], StartTime[i],
+                    FinishTime[i], TurnaroundTime[i], WaitTime[i],
+                    ResponseTime[i]);
+
+        }
+
+        // Displaying average turnaround, waiting, and response times
+        System.out.println("\nAverage Turnaround Time is "
+                + (float) (AvgTurnaround / TaskNum));
+        System.out.println("Average Response Time is "
+                + (float) (AvgResponse / TaskNum));
+
+        // Closing the scanner
+        sc.close();
+
+        // Displaying the order of task completion
+        System.out.print("Order of task completion: ");
+        for (int i = 0; i < TotalTime; i++) {
+            System.out.print(TaskID[i] + "  ");
+        }
+    }
+}
